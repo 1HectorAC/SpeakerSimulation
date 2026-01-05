@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SpeakerSimulation.Components
 {
@@ -22,31 +23,42 @@ namespace SpeakerSimulation.Components
         public void TooglePower()
         {
             IsOn = !IsOn;
-            // On: check if source is playing, play sound is so
-            if (IsOn && _source != null && _source.IsAudioPlaying)
+            // Add/Remove audio receive event
+            if (IsOn && _source != null)
             {
-                Console.WriteLine("Playing Audio: " + _source.Data);
+                _source.AudioGenerated += OnAudioReceived;
+            }
+            else if(!IsOn && _source != null)
+            {
+                _source.AudioGenerated -= OnAudioReceived;
             }
             
         }
 
         public void ConnectSource(Source source)
         {
+            if(_source != null) return;
+
             _source = source;
-            _source.AudioState += OnAudioReceived;
+            _source.AudioGenerated += OnAudioReceived;
         }
-
-        public void OnAudioReceived(bool state, string? data)
+        public void DisconnectSource()
         {
-            if(IsOn && state)
-                Console.WriteLine("Playing Audio: " + data);
+            if(_source ==  null) return;
+    
+            _source.AudioGenerated -= OnAudioReceived;
+            _source = null;
+
         }
 
-
-        public void PrintStatus()
+        public void OnAudioReceived(string data)
         {
-            Console.WriteLine($"Name: {Name}, IsOn: {IsOn}, Volume: {Volume}");
+            if (IsOn)
+                Console.WriteLine("Playing: " + data);
+            
         }
+
+        public void PrintStatus() => Console.WriteLine($"Name: {Name}, IsOn: {IsOn}, Volume: {Volume}");
 
     }
 }

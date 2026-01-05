@@ -10,31 +10,22 @@ namespace SpeakerSimulation.Components
 
         public string Data { get; set; } = "audio data...";
 
-        public bool IsAudioPlaying { get; set; } = false;
-
-        public event Action<bool, string?>? AudioState;
-        
+        public event Action<string>? AudioGenerated;
 
         public Source(string name) 
         {
             Name = name;
         }
 
-
-        public void ChangeAudioState(bool state)
+        public void GenerateAudio(bool state)
         {
-            IsAudioPlaying = state;
-            if(IsAudioPlaying)
-                AudioState?.Invoke(IsAudioPlaying, Data);
-            AudioState?.Invoke(IsAudioPlaying, null);
+            AudioGenerated?.Invoke(Data);
 
         }
 
+        // Consider adding method to call generate audio at regular intervals
 
-        public void StopAudio()
-        {
-            IsAudioPlaying= false;
-        }
+
 
     }
 }
